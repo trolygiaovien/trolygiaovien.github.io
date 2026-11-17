@@ -9,7 +9,8 @@
  window.khoCo=function(mon,lop){const L=(NH[mon]||{})[String(lop)];return !!(L&&L._full)};
  window.khoMau=()=>!URL_KHO;
  function apDung(mon,lop,ds,ver){const M=NH[mon]=NH[mon]||{};const cu=Array.isArray(M[lop])?M[lop]:[];const them=cu.filter(t=>t._u);   // giữ chủ đề giáo viên tự thêm
-  const moi=ds.map(t=>({cd:t.cd,q:t.q,...(t._nc?{_nc:true}:{}),...(t._bs?{_bs:true}:{}),...(t._tt?{_tt:t._tt}:{}),...(t._ngay?{_ngay:t._ngay}:{})}));   /* G-03 (v15.9.16): GIỮ _tt — thiếu trường này thì bộ lọc câu chưa rà soát (he_thong) ở Luyện tập/Trò chơi không chặn được */
+  const moi=ds.map(t=>({cd:t.cd,q:t.q,...(t._nc?{_nc:true}:{}),...(t._bs?{_bs:true}:{}),...(t._tt?{_tt:t._tt}:{}),...(t._ngay?{_ngay:t._ngay}:{}),...(Array.isArray(t.x)?{x:t.x}:{})}));   /* v15.9.27: x = nhãn song song q: [mức 1–4, chủ đề con, dạng câu, lời giải] */   /* G-03 (v15.9.16): GIỮ _tt — thiếu trường này thì bộ lọc câu chưa rà soát (he_thong) ở Luyện tập/Trò chơi không chặn được */
+  moi.forEach(t=>{if(Array.isArray(t.x)&&t.x.length===t.q.length)t.q.forEach((q,i)=>{try{if(Array.isArray(q))Object.defineProperty(q,'_x',{value:t.x[i],configurable:true})}catch(e){}})});   /* gắn nhãn vào từng câu (không đổi định dạng câu) */
   them.forEach(u=>{const g=moi.find(t=>t.cd===u.cd);if(g){u.q.forEach(q=>{if(!g.q.some(e=>String(e[1]).trim()===String(q[1]).trim()))g.q.push(q)})}else moi.push(u)});
   Object.defineProperty(moi,'_full',{value:ver||true,enumerable:false});M[lop]=moi;
   try{document.dispatchEvent(new CustomEvent('kho:loaded',{detail:{mon,lop}}))}catch(e){}}
