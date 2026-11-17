@@ -10,11 +10,11 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Trợ lý Giáo viên & Phụ huynh">
 <meta property="og:locale" content="vi_VN">
-<meta property="og:url" content="https://congthongtinbds.github.io/tro-ly-giao-vien/">
+<meta property="og:url" content="https://trolygiaovien.github.io/">
 <meta property="og:title" content="Trợ lý Giáo viên & Phụ huynh – Tiểu học và THCS">
 <meta property="og:description" content="Soạn đề, ra phiếu, nhận xét, phụ đạo – bồi dưỡng theo Chương trình GDPT 2018. Ngân hàng 1.900+ câu hỏi, đề Toán tự sinh. Dùng thử miễn phí.">
-<meta property="og:image" content="https://congthongtinbds.github.io/tro-ly-giao-vien/og-image.png?v=1">
-<meta property="og:image:secure_url" content="https://congthongtinbds.github.io/tro-ly-giao-vien/og-image.png?v=1">
+<meta property="og:image" content="https://trolygiaovien.github.io/og-image.png?v=1">
+<meta property="og:image:secure_url" content="https://trolygiaovien.github.io/og-image.png?v=1">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -22,7 +22,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Trợ lý Giáo viên & Phụ huynh – Tiểu học và THCS">
 <meta name="twitter:description" content="Soạn đề, ra phiếu, nhận xét, phụ đạo – bồi dưỡng theo Chương trình GDPT 2018. Dùng thử miễn phí.">
-<meta name="twitter:image" content="https://congthongtinbds.github.io/tro-ly-giao-vien/og-image.png?v=1">
+<meta name="twitter:image" content="https://trolygiaovien.github.io/og-image.png?v=1">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <link rel="manifest" href="manifest.json">
@@ -353,6 +353,14 @@ footer a,#auth a,.note a{color:var(--pri)}
 }
 @media print{header,nav{position:static!important}main{margin-left:0!important;padding-top:0!important}.card:has(.printme){display:block!important;border:0;padding:0;box-shadow:none}.card:has(.printme)>:not(:has(.printme)){display:none!important}#tk-wrap>.card:first-child,#nav-tg,#lt-float,#calc{display:none!important}}
 </style>
+<script>/* v15.9.22 – Nhận dữ liệu từ địa chỉ cũ (congthongtinbds.github.io/tro-ly-giao-vien). Chỉ nhận qua postMessage từ đúng trang cũ do chính người dùng mở;
+ không đưa dữ liệu lên đường link; không nhận mã đăng nhập (tlgv_auth); không ghi đè dữ liệu đã có ở địa chỉ mới. */
+(function(){try{var u=new URL(location.href);if(u.searchParams.get('nhan')!=='1'||!window.opener)return;var CU='https://congthongtinbds.github.io';
+ window.addEventListener('message',function(e){if(e.origin!==CU||!e.data||typeof e.data.tlgvChuyen!=='object')return;var d=e.data.tlgvChuyen,n=0;
+  for(var k in d){if(!/^tlgv_/.test(k)||k==='tlgv_auth'||typeof d[k]!=='string')continue;try{if(localStorage.getItem(k)===null){localStorage.setItem(k,d[k]);n++}}catch(x){}}
+  try{e.source.postMessage({tlgvDaNhan:n},CU)}catch(x){}
+  u.searchParams.delete('nhan');history.replaceState(null,'',u.pathname+(u.search||'')+u.hash);if(n)location.reload();});
+ window.opener.postMessage('tlgv-san-sang',CU);}catch(e){}})();</script>
 </head>
 <body>
 <header>
@@ -1292,7 +1300,7 @@ footer a,#auth a,.note a{color:var(--pri)}
 </section>
 
 </main>
-<footer><a href="#" data-dk="dk">Điều khoản sử dụng</a> · <a href="#" data-dk="cs">Chính sách bảo vệ dữ liệu cá nhân</a><br>Phiên bản 15.9.21 · Đáp án Toán do máy tính tự tính; giáo viên kiểm tra lại trước khi dùng.</footer>
+<footer><a href="#" data-dk="dk">Điều khoản sử dụng</a> · <a href="#" data-dk="cs">Chính sách bảo vệ dữ liệu cá nhân</a><br>Phiên bản 15.9.22 · Đáp án Toán do máy tính tự tính; giáo viên kiểm tra lại trước khi dùng.</footer>
 <div id="tour-pick" class="hide"><div class="card tpc">
  <h2>🧭 Cách sử dụng nhanh</h2>
  <p class="note">Chọn việc bạn muốn làm — hệ thống sẽ chỉ từng bước ngay trên màn hình bằng mũi tên và ô sáng.</p>
@@ -3586,7 +3594,7 @@ function qdChanTao(pre,nd,lop,mon){if(typeof ahMien==='function'&&ahMien())retur
 const _bam=str=>{let h=5381;str=String(str||'');for(let i=0;i<str.length;i++)h=((h<<5)+h+str.charCodeAt(i))|0;return (h>>>0).toString(36)};
 const _bamOut=px=>{const o=$('#'+px+'-out');if(!o)return '';const c=o.cloneNode(true);c.querySelectorAll('.qdmsg').forEach(e=>e.remove());return _bam(c.textContent)};
 /* ĐỢT C — mã câu hỏi (questionId) & mã đề: cùng công thức với máy chủ (Code.gs v31: qid_, maDe_). Máy chủ luôn tự tính lại; mã ở máy GV dùng để đối chiếu. */
-const APPVER='15.9.21';
+const APPVER='15.9.22';
 const _nfc=s=>String(s==null?'':s).normalize('NFC').replace(/\s+/g,' ').trim();
 async function _sha256Hex(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(s)));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 const _qzChuan=q=>({type:q.type,q:q.q,right:q.right,mc:Array.isArray(q.mc)?q.mc.slice():undefined});
