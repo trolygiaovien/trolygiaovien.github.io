@@ -1,7 +1,21 @@
-/* Bộ nhớ đệm để mở ứng dụng khi không có mạng. Luôn ưu tiên lấy bản mới nhất từ máy chủ. */
-const C='tlgv-v15.9.23';
-const F=['./','index.html','config.js','hotro.js','kho_mau.js','kho.js','hinhanh.js','nopbai.js','truong.js','thongke.js','diaphuong.js','congthuc.js','manifest.json','icon-192.png','icon-512.png','og-image.png','ct_yccd.json'];
-self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(F.map(u=>new Request(u,{cache:'reload'})))));self.skipWaiting()});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
-self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin)return;
- e.respondWith(fetch(e.request,{cache:'no-cache'}).then(r=>{if(r.ok){const cp=r.clone();caches.open(C).then(c=>c.put(e.request,cp))}return r}).catch(()=>caches.match(e.request,{ignoreSearch:true}).then(r=>r||(e.request.mode==='navigate'?caches.match('index.html'):Response.error()))))});
+/* v15.9.24 — Mở nhanh, không treo khi mạng chập chờn.
+   - File có ?v=<phiên bản> (js/json): lấy từ bộ nhớ đệm ngay; chưa có thì tải về rồi lưu.
+   - Trang chính và file khác: thử mạng tối đa vài giây; quá hạn/mất mạng thì dùng bản đã lưu. */
+const V='15.9.24',C='tlgv-v'+V;
+const JS=['config.js','kho_mau.js','hinhanh.js','nopbai.js','truong.js','thongke.js','kho.js','diaphuong.js','congthuc.js','hotro.js','ct_yccd.json'];
+const F=['./','index.html','manifest.json','icon-192.png','icon-512.png'].concat(JS.map(f=>f+'?v='+V));
+self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>Promise.all(F.map(u=>c.add(new Request(u,{cache:'reload'})).catch(()=>{})))));self.skipWaiting()});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C&&x.startsWith('tlgv-')).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
+function luu(req,r){if(r&&r.ok){const cp=r.clone();caches.open(C).then(c=>c.put(req,cp)).catch(()=>{})}return r}
+function mangTruoc(req,ms){
+ return new Promise(res=>{let xong=false;
+  const cache=()=>caches.match(req,{ignoreSearch:true}).then(r=>r||(req.mode==='navigate'?caches.match('index.html'):null));
+  const t=setTimeout(()=>{cache().then(r=>{if(r&&!xong){xong=true;res(r)}})},ms);
+  fetch(req,{cache:'no-cache'}).then(r=>{clearTimeout(t);luu(req,r);if(!xong){xong=true;res(r)}})
+   .catch(()=>{clearTimeout(t);cache().then(r=>{if(!xong){xong=true;res(r||Response.error())}})});
+ })}
+self.addEventListener('fetch',e=>{const req=e.request,u=new URL(req.url);
+ if(req.method!=='GET'||u.origin!==location.origin)return;
+ if(u.searchParams.has('v')){e.respondWith(caches.match(req).then(r=>r||fetch(req).then(x=>luu(req,x))));return}
+ e.respondWith(mangTruoc(req,req.mode==='navigate'?3500:5000));
+});
