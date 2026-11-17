@@ -1,5 +1,5 @@
 /* Bộ nhớ đệm để mở ứng dụng khi không có mạng. Luôn ưu tiên lấy bản mới nhất từ máy chủ. */
-const C='tlgv-v15.9.22';
+const C='tlgv-v15.9.23';
 const F=['./','index.html','config.js','hotro.js','kho_mau.js','kho.js','hinhanh.js','nopbai.js','truong.js','thongke.js','diaphuong.js','congthuc.js','manifest.json','icon-192.png','icon-512.png','og-image.png','ct_yccd.json'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(F.map(u=>new Request(u,{cache:'reload'})))));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
