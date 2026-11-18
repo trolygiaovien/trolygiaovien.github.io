@@ -43,7 +43,16 @@
  /* ---- OCR bằng Tesseract.js ---- */
  async function napTesseract(){if(window.Tesseract)return;await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=res;s.onerror=()=>rej(new Error('Không tải được bộ nhận dạng chữ (cần mạng).'));document.head.appendChild(s)})}
  async function soHoa(){if(!ANH.length){st('Hãy chọn ảnh trước.',true);return}
-  const btn=$('#nbo-ocr');btn.disabled=true;st('Đang tải bộ nhận dạng chữ (lần đầu ~15 MB)…');
+  const btn=$('#nbo-ocr');
+  /* v15.9.37: có khóa AI của phụ huynh → AI đọc chữ viết tay; lỗi thì quay về bộ đọc có sẵn */
+  if(typeof aiCo==='function'&&aiCo()){btn.disabled=true;st('🤖 AI đang đọc ảnh bài làm viết tay…');
+   try{const n=soCau(),de=BAI&&BAI.qz?BAI.qz:null;const r=await aiDocAnh(ANH.map(a=>a.dataUrl),n,de);const ans=[];
+    r.cau.forEach(c=>{const i=(+c.so||0)-1;if(i<0||i>=n)return;let v=String(c.tl==null?'':c.tl).trim();if(!v)return;const q=de&&de[i];
+     if(q&&q.type==='mc'){const L=v.toUpperCase().match(/^[A-D]$/);if(L&&q.mc)v=q.mc['ABCD'.indexOf(L[0])]||v}ans[i]=v});
+    OCR_TEXT=r.vanBan;$('#nbo-ocrtxt').value=r.vanBan.trim();veBangDapAn(ans);const so=ans.filter(Boolean).length;
+    st(`🤖 AI đã đọc: nhận ra ${so}/${n} câu. Hãy đối chiếu với ảnh và sửa nếu cần trước khi gửi.`,!so);btn.disabled=false;return}
+   catch(e){st('AI chưa đọc được ('+(e.message||e)+') — chuyển sang bộ đọc có sẵn…',true)}btn.disabled=false}
+  btn.disabled=true;st('Đang tải bộ nhận dạng chữ (lần đầu ~15 MB)…');
   try{await napTesseract();const worker=await Tesseract.createWorker('vie+eng',1,{logger:m=>{if(m.status==='recognizing text')st('Đang số hoá… '+Math.round((m.progress||0)*100)+'%')}});
    let text='';for(const a of ANH){const r=await worker.recognize(a.dataUrl);text+='\n'+(r.data.text||'')}await worker.terminate();OCR_TEXT=text;
    const ans=tachDapAn(text,soCau());$('#nbo-ocrtxt').value=text.trim();veBangDapAn(ans);
