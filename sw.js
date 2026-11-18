@@ -1,7 +1,7 @@
 /* v15.9.24/25 — Mở nhanh, không treo khi mạng chập chờn.
    - File có ?v=<phiên bản> (js/json): lấy từ bộ nhớ đệm ngay; chưa có thì tải về rồi lưu.
    - Trang chính và file khác: thử mạng tối đa vài giây; quá hạn/mất mạng thì dùng bản đã lưu. */
-const V='15.9.28',C='tlgv-v'+V;
+const V='15.9.29',C='tlgv-v'+V;
 const JS=['config.js','kho_mau.js','hinhanh.js','nopbai.js','truong.js','thongke.js','kho.js','diaphuong.js','congthuc.js','hotro.js','ct_yccd.json'];
 const F=['./','index.html','manifest.json','icon-192.png','icon-512.png'].concat(JS.map(f=>f+'?v='+V));
 /* Cài đặt: file lõi (trang + mã) BẮT BUỘC tải đủ, thiếu thì không kích hoạt bản mới (bản cũ vẫn chạy); ảnh/icon tuỳ chọn. */
