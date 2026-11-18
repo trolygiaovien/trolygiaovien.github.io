@@ -46,7 +46,7 @@
   const btn=$('#nbo-ocr');
   /* v15.9.37: có khóa AI của phụ huynh → AI đọc chữ viết tay; lỗi thì quay về bộ đọc có sẵn */
   if(typeof aiCo==='function'&&aiCo()){btn.disabled=true;st('🤖 AI đang đọc ảnh bài làm viết tay…');
-   try{const n=soCau(),de=BAI&&BAI.qz?BAI.qz:null;const r=await aiDocAnh(ANH.map(a=>a.dataUrl),n,de);const ans=[];
+   try{window._aiTt=m=>st(m);const n=soCau(),de=BAI&&BAI.qz?BAI.qz:null;const r=await aiDocAnh(ANH.map(a=>a.dataUrl),n,de);const ans=[];
     r.cau.forEach(c=>{const i=(+c.so||0)-1;if(i<0||i>=n)return;let v=String(c.tl==null?'':c.tl).trim();if(!v)return;const q=de&&de[i];
      if(q&&q.type==='mc'){const L=v.toUpperCase().match(/^[A-D]$/);if(L&&q.mc)v=q.mc['ABCD'.indexOf(L[0])]||v}ans[i]=v});
     OCR_TEXT=r.vanBan;$('#nbo-ocrtxt').value=r.vanBan.trim();veBangDapAn(ans);const so=ans.filter(Boolean).length;
