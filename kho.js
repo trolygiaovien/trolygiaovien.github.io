@@ -50,4 +50,10 @@
  window.khoTaiTruoc=async function(lop,mons){if(!URL_KHO||!laDangNhap())return;for(const m of (mons||[])){try{await khoDamBao(m,lop)}catch(e){}}};
  /* Nhãn trạng thái kho cho người dùng biết đang dùng mẫu hay đầy đủ */
  window.khoTrangThai=function(mon,lop){if(!URL_KHO)return 'Kho đầy đủ (cục bộ)';if(khoCo(mon,lop))return 'Kho đầy đủ';return laDangNhap()?'Đang tải kho…':'Kho mẫu — đăng nhập để dùng kho đầy đủ'};
+ /* v15.9.40 – GIÁO ÁN SOẠN SẴN theo từng bài (đã thẩm định ngữ liệu SGK): khoá KV 'GA|<môn>|<lớp>', chỉ phát cho giáo viên/quản trị. Trả mảng giáo án hoặc [] */
+ const GA={};window.gaLay=async function(mon,lop){lop=String(lop);const k=mon+'|'+lop;if(GA[k])return GA[k];if(!URL_KHO||!laDangNhap()||!token())return [];
+  const key='/ga/'+encodeURIComponent(mon)+'/'+lop;const c=await tuCache(key);if(c&&!c.cu&&c.j&&Array.isArray(c.j.ds)&&(!window.KHO_VER||c.j.ver===window.KHO_VER))return GA[k]=c.j.ds;
+  try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),20000);const r=await fetch(URL_KHO+'/ga?m='+encodeURIComponent(mon)+'&l='+lop,{headers:{'x-tlgv-token':token()},signal:ctl.signal});clearTimeout(to);
+   const j=await r.json().catch(()=>null);if(r.ok&&j&&j.ok&&Array.isArray(j.ds)){vaoCache(key,j);return GA[k]=j.ds}if(r.status===404)return GA[k]=[]}catch(e){}
+  return (c&&c.j&&Array.isArray(c.j.ds))?c.j.ds:[]};
 })();
