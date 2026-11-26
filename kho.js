@@ -26,11 +26,11 @@
    let r;try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),25000);r=await fetch(URL_KHO+'/kho?m='+encodeURIComponent(mon)+'&l='+lop,{headers:{'x-tlgv-token':token()},signal:ctl.signal});clearTimeout(to)}
    catch(e){if(c&&c.j&&c.j.ds){apDung(mon,lop,c.j.ds,c.j.ver);return true}window.KHO_LY_DO='Không kết nối được máy chủ kho (đang dùng kho mẫu).';return false}
    let j=null;try{j=await r.json()}catch(e){}
-   if(!r.ok||!j||!j.ok){if(c&&c.j&&c.j.ds&&(!j||j.loi!=='HET_HAN')){apDung(mon,lop,c.j.ds,c.j.ver);return true}
+   if(!r.ok||!j||!j.ok){if(j&&/^KHOA_/.test(j.loi||''))ccKhoa(j);if(c&&c.j&&c.j.ds&&(!j||j.loi!=='HET_HAN')){apDung(mon,lop,c.j.ds,c.j.ver);return true}
     window.KHO_LY_DO=(j&&j.nd)||('Máy chủ kho báo lỗi '+r.status+' (đang dùng kho mẫu).');
     if(j&&j.loi==='HET_HAN'&&typeof moGiaHan==='function'){try{moGiaHan(true)}catch(e){}}
     return false}
-   apDung(mon,lop,j.ds,j.ver);vaoCache(key,j);return true}
+   ccBao(r);apDung(mon,lop,j.ds,j.ver);vaoCache(key,j);return true}
   finally{delete inflight[key]}})();return inflight[key]};
  /* Các mục dùng kho: tiền tố id của select Lớp/Môn và nút bắt đầu */
  const GATE={'lt-go':'lt','p-go':'p','d-go':'d','k-go':'k','pd-go':'pd','bd-go':'bd','g-go':'g'};
@@ -54,6 +54,23 @@
  const GA={};window.gaLay=async function(mon,lop){lop=String(lop);const k=mon+'|'+lop;if(GA[k])return GA[k];if(!URL_KHO||!laDangNhap()||!token())return [];
   const key='/ga/'+encodeURIComponent(mon)+'/'+lop;const c=await tuCache(key);if(c&&!c.cu&&c.j&&Array.isArray(c.j.ds)&&(!window.KHO_VER||c.j.ver===window.KHO_VER))return GA[k]=c.j.ds;
   try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),20000);const r=await fetch(URL_KHO+'/ga?m='+encodeURIComponent(mon)+'&l='+lop,{headers:{'x-tlgv-token':token()},signal:ctl.signal});clearTimeout(to);
-   const j=await r.json().catch(()=>null);if(r.ok&&j&&j.ok&&Array.isArray(j.ds)){vaoCache(key,j);return GA[k]=j.ds}if(r.status===404)return GA[k]=[]}catch(e){}
+   const j=await r.json().catch(()=>null);if(j&&/^KHOA_/.test(j.loi||''))ccKhoa(j);if(r.ok&&j&&j.ok&&Array.isArray(j.ds)){ccBao(r);vaoCache(key,j);return GA[k]=j.ds}if(r.status===404)return GA[k]=[]}catch(e){}
   return (c&&c.j&&Array.isArray(c.j.ds))?c.j.ds:[]};
+
+ /* ===== v15.9.44 CHỐNG CÀO: hạn mức tải/tạo/xuất do quản trị cài trên máy chủ kho ===== */
+ let _ccKhoaLuc=0;
+ function ccKhoa(j){if(Date.now()-_ccKhoaLuc<4000)return;_ccKhoaLuc=Date.now();try{alert(j.nd||'Tài khoản đang bị tạm dừng tải dữ liệu.')}catch(e){}}
+ function ccBao(r){try{const h=r.headers.get('x-tlgv-canh-bao');if(h)nhac(decodeURIComponent(h),true)}catch(e){}}
+ window.ccKhoa=ccKhoa;
+ /* Hỏi máy chủ trước khi TẠO đề/phiếu hoặc XUẤT/IN file. Chỉ chặn khi máy chủ trả lời rõ là vượt hạn mức/bị khoá; mất mạng hoặc chậm → vẫn cho làm. */
+ window.ccSk=async function(loai,mon,lop,ten){if(!URL_KHO||!laDangNhap()||!token())return true;
+  try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),4000);
+   const r=await fetch(URL_KHO+'/sk',{method:'POST',headers:{'x-tlgv-token':token(),'content-type':'application/json'},body:JSON.stringify({loai,mon:mon||'',lop:String(lop||''),ten:String(ten||'').slice(0,160)}),signal:ctl.signal});clearTimeout(to);
+   const j=await r.json().catch(()=>null);if(!j)return true;
+   if(r.status===429||(j.loi&&/^KHOA_/.test(j.loi))){_ccKhoaLuc=0;ccKhoa(j);return false}
+   if(j.canh_bao)nhac(j.canh_bao,true);return true}catch(e){return true}};
+ /* Gọi API quản trị chống cào (chỉ tài khoản quản trị) */
+ window.ccQT=async function(duong,body){if(!URL_KHO)throw new Error('Chưa cấu hình máy chủ kho.');
+  const r=await fetch(URL_KHO+'/qt/'+duong,{method:'POST',headers:{'x-tlgv-token':token(),'content-type':'application/json'},body:JSON.stringify(body||{})});
+  const j=await r.json().catch(()=>null);if(!j||!j.ok)throw new Error((j&&(j.nd||j.loi))||('Lỗi máy chủ '+r.status));return j};
 })();
