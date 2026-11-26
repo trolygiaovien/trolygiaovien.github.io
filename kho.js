@@ -26,7 +26,7 @@
    let r;try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),25000);r=await fetch(URL_KHO+'/kho?m='+encodeURIComponent(mon)+'&l='+lop,{headers:{'x-tlgv-token':token()},signal:ctl.signal});clearTimeout(to)}
    catch(e){if(c&&c.j&&c.j.ds){apDung(mon,lop,c.j.ds,c.j.ver);return true}window.KHO_LY_DO='Không kết nối được máy chủ kho (đang dùng kho mẫu).';return false}
    let j=null;try{j=await r.json()}catch(e){}
-   if(!r.ok||!j||!j.ok){if(j&&/^KHOA_/.test(j.loi||''))ccKhoa(j);if(c&&c.j&&c.j.ds&&(!j||j.loi!=='HET_HAN')){apDung(mon,lop,c.j.ds,c.j.ver);return true}
+   if(!r.ok||!j||!j.ok){if(j&&/^(KHOA_|KHOI)/.test(j.loi||''))ccKhoa(j);if(c&&c.j&&c.j.ds&&(!j||j.loi!=='HET_HAN')){apDung(mon,lop,c.j.ds,c.j.ver);return true}
     window.KHO_LY_DO=(j&&j.nd)||('Máy chủ kho báo lỗi '+r.status+' (đang dùng kho mẫu).');
     if(j&&j.loi==='HET_HAN'&&typeof moGiaHan==='function'){try{moGiaHan(true)}catch(e){}}
     return false}
@@ -63,11 +63,11 @@
  function ccBao(r){try{const h=r.headers.get('x-tlgv-canh-bao');if(h)nhac(decodeURIComponent(h),true)}catch(e){}}
  window.ccKhoa=ccKhoa;
  /* Hỏi máy chủ trước khi TẠO đề/phiếu hoặc XUẤT/IN file. Chỉ chặn khi máy chủ trả lời rõ là vượt hạn mức/bị khoá; mất mạng hoặc chậm → vẫn cho làm. */
- window.ccSk=async function(loai,mon,lop,ten){if(!URL_KHO||!laDangNhap()||!token())return true;
+ window.ccSk=async function(loai,mon,lop,ten,cds){if(!URL_KHO||!laDangNhap()||!token())return true;
   try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),4000);
-   const r=await fetch(URL_KHO+'/sk',{method:'POST',headers:{'x-tlgv-token':token(),'content-type':'application/json'},body:JSON.stringify({loai,mon:mon||'',lop:String(lop||''),ten:String(ten||'').slice(0,160)}),signal:ctl.signal});clearTimeout(to);
+   const r=await fetch(URL_KHO+'/sk',{method:'POST',headers:{'x-tlgv-token':token(),'content-type':'application/json'},body:JSON.stringify({loai,mon:mon||'',lop:String(lop||''),ten:String(ten||'').slice(0,160),cds:Array.isArray(cds)?cds.slice(0,30):[]}),signal:ctl.signal});clearTimeout(to);
    const j=await r.json().catch(()=>null);if(!j)return true;
-   if(r.status===429||(j.loi&&/^KHOA_/.test(j.loi))){_ccKhoaLuc=0;ccKhoa(j);return false}
+   if(r.status===429||r.status===403||(j.loi&&/^(KHOA_|KHOI|HAN_MUC)/.test(j.loi))){_ccKhoaLuc=0;ccKhoa(j);return false}
    if(j.canh_bao)nhac(j.canh_bao,true);return true}catch(e){return true}};
  /* Gọi API quản trị chống cào (chỉ tài khoản quản trị) */
  window.ccQT=async function(duong,body){if(!URL_KHO)throw new Error('Chưa cấu hình máy chủ kho.');
